@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/student.dart';
-import '../providers/app_providers.dart';
+import '../providers/student_provider.dart';
 
 class AddStudentScreen extends ConsumerStatefulWidget {
   const AddStudentScreen({super.key});
@@ -13,101 +12,140 @@ class AddStudentScreen extends ConsumerStatefulWidget {
 class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _batchController = TextEditingController();
   final _feeController = TextEditingController();
-  String _selectedBatch = 'Class 10';
-
-  final List<String> _batches = ['Class 10', 'Class 11', 'Class 12'];
+  final _phoneController = TextEditingController();
+  final _parentController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Student'),
-        actions: [
-          TextButton(
-            onPressed: _saveStudent,
-            child: const Text('Save'),
-          ),
-        ],
       ),
       body: Form(
         key: _formKey,
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Student Name',
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (value) => value?.isEmpty == true ? 'Name is required' : null,
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Student Name *',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number (Optional)',
-                  prefixIcon: Icon(Icons.phone),
-                ),
-                keyboardType: TextInputType.phone,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter student name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _batchController,
+              decoration: const InputDecoration(
+                labelText: 'Batch/Class *',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.class_),
               ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedBatch,
-                decoration: const InputDecoration(
-                  labelText: 'Batch',
-                  prefixIcon: Icon(Icons.class_),
-                ),
-                items: _batches.map((batch) => DropdownMenuItem(
-                  value: batch,
-                  child: Text(batch),
-                )).toList(),
-                onChanged: (value) => setState(() => _selectedBatch = value!),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter batch/class';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _feeController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Monthly Fee *',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.currency_rupee),
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _feeController,
-                decoration: const InputDecoration(
-                  labelText: 'Monthly Fee',
-                  prefixIcon: Icon(Icons.currency_rupee),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) => value?.isEmpty == true ? 'Fee is required' : null,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter monthly fee';
+                }
+                if (double.tryParse(value) == null) {
+                  return 'Please enter valid amount';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Phone Number (Optional)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.phone),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _parentController,
+              decoration: const InputDecoration(
+                labelText: 'Parent Name (Optional)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.family_restroom),
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _addStudent,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('Add Student'),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _saveStudent() {
-    if (_formKey.currentState!.validate()) {
-      final student = Student(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: _nameController.text,
-        batch: _selectedBatch,
-        phone: _phoneController.text.isEmpty ? null : _phoneController.text,
-        joinDate: DateTime.now(),
-        monthlyFee: double.parse(_feeController.text),
+  Future<void> _addStudent() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      await ref.read(studentsProvider.notifier).addStudent(
+        name: _nameController.text.trim(),
+        batch: _batchController.text.trim(),
+        monthlyFee: double.parse(_feeController.text.trim()),
+        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        parentName: _parentController.text.trim().isEmpty ? null : _parentController.text.trim(),
       );
-      
-      ref.read(studentsProvider.notifier).addStudent(student);
+
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Student added successfully')),
       );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to add student')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _phoneController.dispose();
+    _batchController.dispose();
     _feeController.dispose();
+    _phoneController.dispose();
+    _parentController.dispose();
     super.dispose();
   }
 }

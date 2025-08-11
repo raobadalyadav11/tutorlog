@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../models/attendance.dart';
-import '../providers/app_providers.dart';
+import '../providers/student_provider.dart';
+import '../providers/attendance_provider.dart';
 
 class AttendanceScreen extends ConsumerStatefulWidget {
   const AttendanceScreen({super.key});
@@ -76,18 +77,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 itemCount: filteredStudents.length,
                 itemBuilder: (context, index) {
                   final student = filteredStudents[index];
-                  final existingAttendance = todayAttendance.firstWhere(
+                  final existingAttendance = todayAttendance.where(
                     (a) => a.studentId == student.id,
-                    orElse: () => Attendance(
-                      id: '',
-                      studentId: student.id,
-                      date: selectedDate,
-                      isPresent: false,
-                    ),
-                  );
+                  ).isNotEmpty ? todayAttendance.firstWhere(
+                    (a) => a.studentId == student.id,
+                  ) : null;
                   
-                  final isPresent = attendanceMap[student.id] ?? existingAttendance.isPresent;
-                  final isMarked = attendanceMap.containsKey(student.id) || existingAttendance.id.isNotEmpty;
+                  final isPresent = attendanceMap[student.id] ?? (existingAttendance?.isPresent ?? false);
+                  final isMarked = attendanceMap.containsKey(student.id) || existingAttendance != null;
                   
                   return Card(
                     margin: const EdgeInsets.only(bottom: 8),
@@ -154,18 +151,16 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     }
   }
 
-  void _saveAttendance() {
+  void _saveAttendance() async {
     final attendanceNotifier = ref.read(attendanceProvider.notifier);
     
-    attendanceMap.forEach((studentId, isPresent) {
-      final attendance = Attendance(
-        id: '${studentId}_${selectedDate.millisecondsSinceEpoch}',
-        studentId: studentId,
+    for (final entry in attendanceMap.entries) {
+      await attendanceNotifier.markAttendance(
+        studentId: entry.key,
         date: selectedDate,
-        isPresent: isPresent,
+        isPresent: entry.value,
       );
-      attendanceNotifier.markAttendance(attendance);
-    });
+    }
     
     setState(() {
       attendanceMap.clear();

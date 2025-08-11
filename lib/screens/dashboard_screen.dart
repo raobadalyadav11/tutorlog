@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../widgets/dashboard_card.dart';
-import '../providers/app_providers.dart';
+import '../providers/student_provider.dart';
+import '../providers/attendance_provider.dart';
+import '../providers/payment_provider.dart';
+import '../providers/auth_provider.dart';
 import 'students_screen.dart';
 import 'attendance_screen.dart';
 import 'payments_screen.dart';
 import 'reports_screen.dart';
+import 'subscription_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -17,6 +21,13 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('TutorLog'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.subscriptions),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {},
@@ -46,6 +57,13 @@ class DashboardScreen extends ConsumerWidget {
               final students = ref.watch(studentsProvider);
               final attendance = ref.watch(attendanceProvider);
               final payments = ref.watch(paymentsProvider);
+              
+              // Load data when dashboard builds
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ref.read(studentsProvider.notifier).loadStudents();
+                ref.read(attendanceProvider.notifier).loadAttendance();
+                ref.read(paymentsProvider.notifier).loadPayments();
+              });
               
               final todayAttendance = attendance.where((a) => 
                 a.date.year == DateTime.now().year &&

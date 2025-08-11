@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../theme/app_theme.dart';
-import '../providers/app_providers.dart';
+import '../providers/student_provider.dart';
+import '../providers/auth_provider.dart';
+import '../models/student.dart';
 import 'add_student_screen.dart';
 
 class StudentsScreen extends ConsumerWidget {
@@ -10,6 +13,11 @@ class StudentsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final students = ref.watch(studentsProvider);
+
+    // Load students when screen builds
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(studentsProvider.notifier).loadStudents();
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -21,48 +29,61 @@ class StudentsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: students.length,
-        itemBuilder: (context, index) {
-          final student = students[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: AppTheme.primaryColor,
-                child: Text(
-                  student.name[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-              title: Text(
-                student.name,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: students.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Batch: ${student.batch}'),
-                  Text('Fee: ₹${student.monthlyFee.toInt()}'),
+                  Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('No students added yet'),
+                  SizedBox(height: 8),
+                  Text('Tap + to add your first student'),
                 ],
               ),
-              trailing: PopupMenuButton(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  const PopupMenuItem(value: 'delete', child: Text('Delete')),
-                ],
-                onSelected: (value) {
-                  if (value == 'delete') {
-                    _showDeleteDialog(context, ref, student.id);
-                  }
-                },
-              ),
-              isThreeLine: true,
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: students.length,
+              itemBuilder: (context, index) {
+                final student = students[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: AppTheme.primaryColor,
+                      child: Text(
+                        student.name[0].toUpperCase(),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    title: Text(
+                      student.name,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Batch: ${student.batch}'),
+                        Text('Fee: ₹${student.monthlyFee.toInt()}'),
+                      ],
+                    ),
+                    trailing: PopupMenuButton(
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                        const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          _showDeleteDialog(context, ref, student.id);
+                        }
+                      },
+                    ),
+                    isThreeLine: true,
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -88,7 +109,7 @@ class StudentsScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              ref.read(studentsProvider.notifier).removeStudent(studentId);
+              ref.read(studentsProvider.notifier).deleteStudent(studentId);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Student deleted successfully')),

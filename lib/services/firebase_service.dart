@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import '../firebase_options.dart';
 import '../models/tutor.dart';
 import '../models/student.dart';
 import '../models/attendance.dart';
@@ -14,7 +15,9 @@ class FirebaseService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     await _messaging.requestPermission();
   }
 

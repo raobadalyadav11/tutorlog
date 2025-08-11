@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
+import 'auth/login_screen.dart';
 import 'dashboard_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -14,16 +16,25 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToDashboard();
+    _navigateToNextScreen();
   }
 
-  _navigateToDashboard() async {
+  _navigateToNextScreen() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
+      final authState = ref.read(authStateProvider);
+      if (authState.hasValue && authState.value != null) {
+        await ref.read(currentTutorProvider.notifier).loadCurrentTutor();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     }
   }
 
