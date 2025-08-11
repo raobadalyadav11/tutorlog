@@ -114,15 +114,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final verificationId = await FirebaseService.sendOTP(phoneNumber);
 
       if (verificationId != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => OTPScreen(
-              phoneNumber: phoneNumber,
-              verificationId: verificationId,
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OTPScreen(
+                phoneNumber: phoneNumber,
+                verificationId: verificationId,
+              ),
             ),
-          ),
-        );
+          );
+        }
       } else {
         _showError('Failed to send OTP. Please try again.');
       }

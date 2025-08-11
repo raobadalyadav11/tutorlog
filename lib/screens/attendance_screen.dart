@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
-import '../models/attendance.dart';
+
 import '../providers/student_provider.dart';
 import '../providers/attendance_provider.dart';
 
@@ -166,8 +166,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       attendanceMap.clear();
     });
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Attendance saved successfully')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Attendance saved successfully')),
+      );
+    }
   }
 }

@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'firebase_service.dart';
 import 'local_storage_service.dart';
-import '../models/student.dart';
-import '../models/attendance.dart';
-import '../models/payment.dart';
+
 
 class SyncService {
   static final Connectivity _connectivity = Connectivity();

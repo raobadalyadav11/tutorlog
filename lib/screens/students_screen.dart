@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 import '../theme/app_theme.dart';
 import '../providers/student_provider.dart';
-import '../providers/auth_provider.dart';
-import '../models/student.dart';
 import 'add_student_screen.dart';
 
 class StudentsScreen extends ConsumerWidget {

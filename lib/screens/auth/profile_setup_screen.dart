@@ -117,14 +117,18 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
         widget.phoneNumber,
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to create profile. Please try again.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create profile. Please try again.')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }

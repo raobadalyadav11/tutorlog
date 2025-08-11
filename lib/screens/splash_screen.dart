@@ -25,15 +25,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final authState = ref.read(authStateProvider);
       if (authState.hasValue && authState.value != null) {
         await ref.read(currentTutorProvider.notifier).loadCurrentTutor();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardScreen()),
-        );
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        }
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
       }
     }
   }

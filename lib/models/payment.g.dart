@@ -8,7 +8,7 @@ part of 'payment.dart';
 
 class PaymentAdapter extends TypeAdapter<Payment> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   Payment read(BinaryReader reader) {
@@ -19,29 +19,44 @@ class PaymentAdapter extends TypeAdapter<Payment> {
     return Payment(
       id: fields[0] as String,
       studentId: fields[1] as String,
-      amount: fields[2] as double,
-      date: fields[3] as DateTime,
-      mode: fields[4] as String,
-      status: fields[5] as String,
+      tutorId: fields[2] as String,
+      amount: fields[3] as double,
+      date: fields[4] as DateTime,
+      mode: fields[5] as String,
+      status: fields[6] as String,
+      note: fields[7] as String?,
+      createdAt: fields[8] as DateTime,
+      isSynced: fields[9] as bool? ?? false,
+      transactionId: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Payment obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.studentId)
       ..writeByte(2)
-      ..write(obj.amount)
+      ..write(obj.tutorId)
       ..writeByte(3)
-      ..write(obj.date)
+      ..write(obj.amount)
       ..writeByte(4)
-      ..write(obj.mode)
+      ..write(obj.date)
       ..writeByte(5)
-      ..write(obj.status);
+      ..write(obj.mode)
+      ..writeByte(6)
+      ..write(obj.status)
+      ..writeByte(7)
+      ..write(obj.note)
+      ..writeByte(8)
+      ..write(obj.createdAt)
+      ..writeByte(9)
+      ..write(obj.isSynced)
+      ..writeByte(10)
+      ..write(obj.transactionId);
   }
 
   @override

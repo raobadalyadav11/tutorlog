@@ -107,19 +107,23 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
         
         if (tutor == null) {
           // New user - go to profile setup
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ProfileSetupScreen(phoneNumber: widget.phoneNumber),
-            ),
-          );
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ProfileSetupScreen(phoneNumber: widget.phoneNumber),
+              ),
+            );
+          }
         } else {
           // Existing user - load profile and go to dashboard
           await ref.read(currentTutorProvider.notifier).loadCurrentTutor();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          );
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          }
         }
       } else {
         _showError('Invalid OTP. Please try again.');

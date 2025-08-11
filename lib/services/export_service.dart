@@ -30,7 +30,7 @@ class ExportService {
             ),
             pw.Paragraph(text: 'Period: ${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}'),
             pw.SizedBox(height: 20),
-            pw.Table.fromTextArray(
+            pw.TableHelper.fromTextArray(
               headers: ['Student Name', 'Batch', 'Present Days', 'Total Days', 'Percentage'],
               data: students.map((student) {
                 final studentAttendance = attendance.where((a) => a.studentId == student.id).toList();
@@ -119,7 +119,7 @@ class ExportService {
             ),
             pw.Paragraph(text: 'Period: ${dateFormat.format(startDate)} - ${dateFormat.format(endDate)}'),
             pw.SizedBox(height: 20),
-            pw.Table.fromTextArray(
+            pw.TableHelper.fromTextArray(
               headers: ['Student Name', 'Amount', 'Date', 'Mode', 'Status'],
               data: payments.map((payment) {
                 final student = students.firstWhere((s) => s.id == payment.studentId);

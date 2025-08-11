@@ -5,7 +5,7 @@ import '../widgets/dashboard_card.dart';
 import '../providers/student_provider.dart';
 import '../providers/attendance_provider.dart';
 import '../providers/payment_provider.dart';
-import '../providers/auth_provider.dart';
+
 import 'students_screen.dart';
 import 'attendance_screen.dart';
 import 'payments_screen.dart';

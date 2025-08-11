@@ -126,14 +126,18 @@ class _AddStudentScreenState extends ConsumerState<AddStudentScreen> {
         parentName: _parentController.text.trim().isEmpty ? null : _parentController.text.trim(),
       );
 
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Student added successfully')),
-      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Student added successfully')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to add student')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to add student')),
+        );
+      }
     } finally {
       setState(() => _isLoading = false);
     }

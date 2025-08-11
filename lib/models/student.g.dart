@@ -8,7 +8,7 @@ part of 'student.dart';
 
 class StudentAdapter extends TypeAdapter<Student> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   Student read(BinaryReader reader) {
@@ -18,30 +18,42 @@ class StudentAdapter extends TypeAdapter<Student> {
     };
     return Student(
       id: fields[0] as String,
-      name: fields[1] as String,
-      batch: fields[2] as String,
-      phone: fields[3] as String?,
-      joinDate: fields[4] as DateTime,
-      monthlyFee: fields[5] as double,
+      tutorId: fields[1] as String,
+      name: fields[2] as String,
+      batch: fields[3] as String,
+      phone: fields[4] as String?,
+      parentName: fields[5] as String?,
+      joinDate: fields[6] as DateTime,
+      monthlyFee: fields[7] as double,
+      isActive: fields[8] as bool? ?? true,
+      lastSyncAt: fields[9] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Student obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.tutorId)
       ..writeByte(2)
-      ..write(obj.batch)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.phone)
+      ..write(obj.batch)
       ..writeByte(4)
-      ..write(obj.joinDate)
+      ..write(obj.phone)
       ..writeByte(5)
-      ..write(obj.monthlyFee);
+      ..write(obj.parentName)
+      ..writeByte(6)
+      ..write(obj.joinDate)
+      ..writeByte(7)
+      ..write(obj.monthlyFee)
+      ..writeByte(8)
+      ..write(obj.isActive)
+      ..writeByte(9)
+      ..write(obj.lastSyncAt);
   }
 
   @override
